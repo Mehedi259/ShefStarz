@@ -71,7 +71,8 @@ class HomeService extends GetxService {
         );
       }).toList();
 
-      feedPosts.assignAll(updatedPosts);
+      // Reverse the list to show newest first (bottom to top)
+      feedPosts.assignAll(updatedPosts.reversed.toList());
       feedStatus.value = posts.isEmpty ? RxStatus.empty() : RxStatus.success();
     } catch (e) {
       feedStatus.value = RxStatus.error(e.toString());
@@ -118,7 +119,8 @@ class HomeService extends GetxService {
         );
       }).toList();
 
-      feedPosts.assignAll(updatedPosts);
+      // Reverse the list to show newest first (bottom to top)
+      feedPosts.assignAll(updatedPosts.reversed.toList());
       if (feedStatus.value.isError ||
           feedStatus.value.isEmpty ||
           feedStatus.value.isLoading) {
