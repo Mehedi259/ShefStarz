@@ -19,6 +19,7 @@ import '../modules/settings/location/location_view.dart';
 import '../modules/legal/terms_view.dart';
 import '../modules/legal/about_view.dart';
 import '../modules/auth/binding/auth_binding.dart';
+import '../modules/auth/binding/login_binding.dart';
 import '../modules/auth/view/auth_view.dart';
 import '../modules/auth/view/login_view.dart';
 import '../modules/dashboard/binding/dashboard_binding.dart';
@@ -54,7 +55,7 @@ part 'app_routes.dart';
 
 class AppPages {
   AppPages._();
-  static const INITIAL = Routes.SPLASH;
+  static const INITIAL = Routes.LOGIN; // Changed from SPLASH to LOGIN - direct login screen
   static final routes = [
     GetPage(
       name: Routes.POST_DETAIL,
@@ -86,7 +87,7 @@ class AppPages {
     GetPage(
       name: _Paths.LOGIN,
       page: () => const LoginView(),
-      binding: AuthBinding(), // Reuse AuthBinding
+      binding: LoginBinding(), // Use LoginBinding instead of AuthBinding
     ),
     GetPage(
       name: _Paths.DASHBOARD,

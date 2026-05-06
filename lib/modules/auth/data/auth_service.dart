@@ -23,6 +23,12 @@ class AuthService extends GetxService {
     super.onInit();
   }
 
+  /// Check if user has a valid access token
+  Future<bool> hasValidToken() async {
+    final token = await _storage.read(key: 'access_token');
+    return token != null && token.isNotEmpty;
+  }
+
   Future<void> checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final token = await _storage.read(key: 'access_token');
@@ -38,7 +44,8 @@ class AuthService extends GetxService {
       }
       Get.offAllNamed(Routes.DASHBOARD);
     } else {
-      Get.offAllNamed(Routes.ONBOARDING);
+      // Changed from ONBOARDING to LOGIN - directly go to sign-in screen
+      Get.offAllNamed(Routes.LOGIN);
     }
   }
 
@@ -271,4 +278,4 @@ class AuthService extends GetxService {
       Get.offAllNamed(Routes.LOGIN);
     }
   }
-}
+}

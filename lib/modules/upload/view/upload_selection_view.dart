@@ -39,9 +39,14 @@ class UploadSelectionView extends GetView<UploadController> {
               return CameraPreview(controller.cameraController!);
             }
 
-            return const AppImage(
-              url: "assets/images/girl_cooking.png",
-              fit: BoxFit.cover,
+            // No background image - just show black background
+            return Container(
+              color: Colors.black,
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.orange,
+                ),
+              ),
             );
           }),
 
