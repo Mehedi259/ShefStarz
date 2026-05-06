@@ -7,6 +7,7 @@ import '../../core/image/app_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import '../../../core/widgets/video_player_screen.dart';
+import '../../../core/widgets/auto_play_video_widget.dart';
 import 'custom_dialogs.dart';
 
 class FeedPostCard extends StatelessWidget {
@@ -277,54 +278,53 @@ class FeedPostCard extends StatelessWidget {
             ),
           ),
 
-          // Post Image
-          GestureDetector(
-            onTap: () {
-              if (isVideo && image.isNotEmpty) {
-                Get.to(() => VideoPlayerScreen(videoUrl: image));
-              }
-            },
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                if (isVideo)
-                  Container(
+          // Post Image/Video
+          ClipRRect(
+            borderRadius: BorderRadius.zero, // Keep it rectangular like images
+            child: isVideo && image.isNotEmpty
+                ? AutoPlayVideoWidget(
+                    videoUrl: image,
                     height: 250,
-                    width: double.infinity,
-                    color: Colors.black87,
-                  )
-                else if (image.startsWith('assets/'))
-                  Image.asset(
-                    image,
-                    fit: BoxFit.cover,
-                    height: 250,
-                    width: double.infinity,
-                    errorBuilder: (context, error, stackTrace) {
-                      print("Asset Load Error for $image: $error");
-                      return const Icon(Icons.error_outline);
+                    onTap: () {
+                      Get.to(() => VideoPlayerScreen(videoUrl: image));
                     },
                   )
-                else
-                  CachedNetworkImage(
-                    imageUrl: image,
-                    fit: BoxFit.cover,
-                    height: 250,
-                    width: double.infinity,
-                    placeholder: (context, url) =>
-                        const Center(child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) {
-                      print("Image Load Error for $url: $error");
-                      return const Icon(Icons.error_outline);
+                : GestureDetector(
+                    onTap: () {
+                      if (isVideo && image.isNotEmpty) {
+                        Get.to(() => VideoPlayerScreen(videoUrl: image));
+                      }
                     },
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (image.startsWith('assets/'))
+                          Image.asset(
+                            image,
+                            fit: BoxFit.cover,
+                            height: 250,
+                            width: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              print("Asset Load Error for $image: $error");
+                              return const Icon(Icons.error_outline);
+                            },
+                          )
+                        else
+                          CachedNetworkImage(
+                            imageUrl: image,
+                            fit: BoxFit.cover,
+                            height: 250,
+                            width: double.infinity,
+                            placeholder: (context, url) =>
+                                const Center(child: CircularProgressIndicator()),
+                            errorWidget: (context, url, error) {
+                              print("Image Load Error for $url: $error");
+                              return const Icon(Icons.error_outline);
+                            },
+                          ),
+                      ],
+                    ),
                   ),
-                if (isVideo)
-                  const Icon(
-                    Icons.play_circle_fill,
-                    color: Colors.white70,
-                    size: 60,
-                  ),
-              ],
-            ),
           ),
 
           // Actions
