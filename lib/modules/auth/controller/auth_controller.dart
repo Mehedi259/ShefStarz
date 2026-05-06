@@ -108,7 +108,7 @@ class AuthController extends GetxController {
 
   // Age Group selection
   final selectedAgeGroup = "1".obs;
-  final List<dynamic> ageList = ['05-10 yrs', '11-15 yrs', '16+ yrs'];
+  final List<dynamic> ageList = ['05-10 yrs', '11-15 yrs', '16-20 yrs'];
 
   void setAgeGroup(String ageGroup) {
     selectedAgeGroup.value = ageGroup;
@@ -506,7 +506,7 @@ class AuthController extends GetxController {
       final Map<String, String> ageGroupMap = {
         '05-10 yrs': '05-10 yrs',
         '11-15 yrs': '11-15 yrs',
-        '16+ yrs': '16+ yrs',
+        '16-20 yrs': '16-20 yrs',
       };
 
       final apiAgeGroupValue = ageGroupMap[ageGroupValue] ?? ageGroupValue;
