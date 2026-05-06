@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef Starz Backend API Requirements</title>
+    <style>
+        @page {
+            margin: 1in;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #95a5a6;
+            padding-bottom: 8px;
+            margin-top: 25px;
+        }
+        h3 {
+            color: #7f8c8d;
+            margin-top: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            border: none;
+            color: white;
+        }
+        .header p {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+        pre {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            overflow-x: auto;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        .endpoint {
+            background: #e8f4f8;
+            padding: 10px 15px;
+            border-left: 4px solid #3498db;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .endpoint strong {
+            color: #2980b9;
+        }
+        ul {
+            padding-left: 25px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .checklist {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+        .checklist li {
+            list-style-type: none;
+        }
+        .checklist li:before {
+            content: "☐ ";
+            margin-right: 8px;
+            color: #3498db;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background: #3498db;
+            color: white;
+        }
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ecf0f1;
+            margin: 30px 0;
+        }
+        @media print {
+            body {
+                max-width: 100%;
+            }
+            .header {
+                background: #667eea !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            pre, .endpoint, .checklist, .note {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Chef Starz Backend API Requirements</h1>
+        <p><strong>Document Version:</strong> 1.0</p>
+        <p><strong>Date:</strong> January 21, 2026</p>
+        <p><strong>Application:</strong> Chef Starz - Recipe Sharing Platform</p>
+    </div>
+
+    <h1>1. Base Configuration</h1>
+    
+    <h3>Environment URLs</h3>
+    <ul>
+        <li><strong>Development:</strong> <code>https://dev-api.chefstarz.com</code> (or as provided)</li>
+        <li><strong>Staging:</strong> <code>https://staging-api.chefstarz.com</code> (or as provided)</li>
+        <li><strong>Production:</strong> <code>https://api.chefstarz.com</code> (or as provided)</li>
+    </ul>
+
+    <h3>API Standards</h3>
+    <ul>
+        <li><strong>API Versioning:</strong> <code>/api/v1/</code> (confirm version strategy)</li>
+        <li><strong>Protocol:</strong> HTTPS only</li>
+        <li><strong>Rate Limiting:</strong> Specify limits per endpoint (e.g., 100 requests/minute)</li>
+        <li><strong>Timeout Recommendations:</strong> Connection timeout & read timeout values</li>
+    </ul>
+
+    <hr>
+
+    <h1>2. Authentication & Authorization</h1>
+
+    <h2>2.1 User Registration</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/auth/signup</code> or <code>/auth/register</code>
+    </div>
+
+    <p><strong>Request Body:</strong></p>
+    <pre><code>{
+  "name": "string (required)",
+  "email": "string (required, valid email format)",
+  "password": "string (required, min 8 characters)",
+  "parentEmail": "string (optional, for child accounts)"
+}</code></pre>
+
+    <p><strong>Success Response (201):</strong></p>
+    <pre><code>{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "string",
+      "name": "string",
+      "email": "string",
+      "parentEmail": "string | null",
+      "isVerified": false,
+      "avatar": "string | null",
+      "bio": "string | null",
+      "location": "string | null"
+    },
+    "accessToken": "string (JWT)",
+    "refreshToken": "string (JWT)",
+    "requiresParentApproval": "boolean"
+  }
+}</code></pre>
+
+    <h2>2.2 Email Verification</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/auth/verify-email</code>
+    </div>
+
+    <p><strong>Request Body:</strong></p>
+    <pre><code>{
+  "email": "string",
+  "code": "string (6-digit verification code)"
+}</code></pre>
+
+    <div class="endpoint">
+        <strong>POST</strong> <code>/auth/resend-verification</code>
+    </div>
+
+    <p><strong>Request Body:</strong></p>
+    <pre><code>{
+  "email": "string"
+}</code></pre>
+
+    <p><strong>Success Response (200):</strong></p>
+    <pre><code>{
+  "success": true,
+  "data": {
+    "message": "Verification code sent",
+    "cooldownSeconds": 60
+  }
+}</code></pre>
+
+    <h2>2.3 Login</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/auth/login</code>
+    </div>
+
+    <p><strong>Request Body:</strong></p>
+    <pre><code>{
+  "email": "string",
+  "password": "string"
+}</code></pre>
+
+    <h2>2.4 Social Login</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/auth/google</code>
+    </div>
+
+    <p><strong>Request Body:</strong></p>
+    <pre><code>{
+  "idToken": "string (from Google Sign-In SDK)"
+}</code></pre>
+
+    <div class="endpoint">
+        <strong>POST</strong> <code>/auth/apple</code>
+    </div>
+
+    <p><strong>Request Body:</strong></p>
+    <pre><code>{
+  "identityToken": "string (from Apple Sign-In)",
+  "authorizationCode": "string"
+}</code></pre>
+
+    <h2>2.5 Password Reset</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/auth/forgot-password</code>
+    </div>
+
+    <p><strong>Request Body:</strong></p>
+    <pre><code>{
+  "email": "string"
+}</code></pre>
+
+    <div class="endpoint">
+        <strong>POST</strong> <code>/auth/reset-password</code>
+    </div>
+
+    <p><strong>Request Body:</strong></p>
+    <pre><code>{
+  "email": "string",
+  "code": "string (verification code)",
+  "newPassword": "string"
+}</code></pre>
+
+    <h2>2.6 Token Management</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/auth/refresh-token</code>
+    </div>
+
+    <p><strong>Request Body:</strong></p>
+    <pre><code>{
+  "refreshToken": "string"
+}</code></pre>
+
+    <p><strong>Success Response (200):</strong></p>
+    <pre><code>{
+  "success": true,
+  "data": {
+    "accessToken": "string",
+    "refreshToken": "string"
+  }
+}</code></pre>
+
+    <div class="endpoint">
+        <strong>POST</strong> <code>/auth/logout</code>
+    </div>
+    <p><strong>Headers:</strong> <code>Authorization: Bearer &lt;token&gt;</code></p>
+
+    <h2>2.7 Parent Approval Status</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/auth/approval-status/:userId</code>
+    </div>
+
+    <p><strong>Headers:</strong> <code>Authorization: Bearer &lt;token&gt;</code></p>
+
+    <p><strong>Success Response (200):</strong></p>
+    <pre><code>{
+  "success": true,
+  "data": {
+    "isVerified": "boolean",
+    "approvalStatus": "pending | approved | rejected"
+  }
+}</code></pre>
+
+    <h3>Token Specifications Required</h3>
+    <ul>
+        <li><strong>Token Type:</strong> JWT</li>
+        <li><strong>Header Format:</strong> <code>Authorization: Bearer &lt;accessToken&gt;</code></li>
+        <li><strong>Access Token TTL:</strong> Specify duration (e.g., 1 hour)</li>
+        <li><strong>Refresh Token TTL:</strong> Specify duration (e.g., 30 days)</li>
+        <li><strong>Token Refresh Flow:</strong> Auto-refresh on 401 or manual refresh</li>
+    </ul>
+
+    <hr>
+
+    <h1>3. User Profile Management</h1>
+
+    <h2>3.1 Get User Profile</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/users/:userId</code> or <code>/users/me</code>
+    </div>
+
+    <p><strong>Headers:</strong> <code>Authorization: Bearer &lt;token&gt;</code></p>
+
+    <p><strong>Success Response (200):</strong></p>
+    <pre><code>{
+  "success": true,
+  "data": {
+    "id": "string",
+    "name": "string",
+    "email": "string",
+    "parentEmail": "string | null",
+    "isVerified": "boolean",
+    "bio": "string | null",
+    "avatar": "string (URL) | null",
+    "location": "string | null",
+    "followersCount": "number",
+    "followingCount": "number",
+    "recipesCount": "number",
+    "createdAt": "ISO 8601 timestamp"
+  }
+}</code></pre>
+
+    <h2>3.2 Update User Profile</h2>
+    <div class="endpoint">
+        <strong>PUT/PATCH</strong> <code>/users/me</code>
+    </div>
+
+    <p><strong>Request Body:</strong></p>
+    <pre><code>{
+  "name": "string (optional)",
+  "bio": "string (optional)",
+  "location": "string (optional)",
+  "avatar": "string URL (optional, after upload)"
+}</code></pre>
+
+    <h2>3.3 Upload Profile Picture</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/users/me/avatar</code>
+    </div>
+
+    <p><strong>Headers:</strong></p>
+    <ul>
+        <li><code>Authorization: Bearer &lt;token&gt;</code></li>
+        <li><code>Content-Type: multipart/form-data</code></li>
+    </ul>
+
+    <p><strong>Request Body:</strong> <code>avatar</code> (file)</p>
+
+    <hr>
+
+    <h1>4. Recipe Management</h1>
+
+    <h2>4.1 Get Recipes (List with Pagination)</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/recipes</code>
+    </div>
+
+    <p><strong>Query Parameters:</strong></p>
+    <ul>
+        <li><code>page</code> (number, default: 1)</li>
+        <li><code>limit</code> (number, default: 20, max: 50)</li>
+        <li><code>sort</code> (string: <code>latest</code>, <code>popular</code>, <code>rating</code>)</li>
+        <li><code>category</code> (string, optional)</li>
+    </ul>
+
+    <p><strong>Success Response (200):</strong></p>
+    <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": "string",
+      "title": "string",
+      "chefName": "string",
+      "chefId": "string",
+      "chefAvatar": "string (URL)",
+      "time": "string (e.g., '30 min')",
+      "servings": "string (e.g., '4 servings')",
+      "description": "string",
+      "image": "string (URL)",
+      "rating": "string (e.g., '4.5')",
+      "likesCount": "number",
+      "commentsCount": "number",
+      "isLiked": "boolean",
+      "isSaved": "boolean",
+      "createdAt": "ISO 8601 timestamp"
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 10,
+    "totalItems": 200,
+    "perPage": 20,
+    "hasNext": true,
+    "hasPrevious": false
+  }
+}</code></pre>
+
+    <h2>4.2 Get Recipe Details</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/recipes/:recipeId</code>
+    </div>
+
+    <p><strong>Response includes:</strong> All list fields plus <code>ingredients</code>, <code>frostingIngredients</code>, and <code>steps</code> array</p>
+
+    <h2>4.3 Create Recipe</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/recipes</code>
+    </div>
+
+    <p><strong>Request Body:</strong></p>
+    <pre><code>{
+  "title": "string (required)",
+  "description": "string (required)",
+  "time": "string (required)",
+  "servings": "string (required)",
+  "image": "string URL (required, after upload)",
+  "ingredients": ["string"],
+  "frostingIngredients": ["string"] /* optional */,
+  "steps": [
+    {
+      "title": "string",
+      "description": "string",
+      "image": "string (URL)"
+    }
+  ]
+}</code></pre>
+
+    <h2>4.4 Update Recipe</h2>
+    <div class="endpoint">
+        <strong>PUT/PATCH</strong> <code>/recipes/:recipeId</code>
+    </div>
+
+    <h2>4.5 Delete Recipe</h2>
+    <div class="endpoint">
+        <strong>DELETE</strong> <code>/recipes/:recipeId</code>
+    </div>
+
+    <h2>4.6 Get User's Recipes</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/users/:userId/recipes</code>
+    </div>
+
+    <hr>
+
+    <h1>5. Social Interactions</h1>
+
+    <h2>5.1 Like/Unlike Recipe</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/recipes/:recipeId/like</code> (Like)
+    </div>
+    <div class="endpoint">
+        <strong>DELETE</strong> <code>/recipes/:recipeId/like</code> (Unlike)
+    </div>
+
+    <h2>5.2 Save/Unsave Recipe</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/recipes/:recipeId/save</code> (Save)
+    </div>
+    <div class="endpoint">
+        <strong>DELETE</strong> <code>/recipes/:recipeId/save</code> (Unsave)
+    </div>
+
+    <h2>5.3 Get Saved Recipes</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/users/me/saved-recipes</code>
+    </div>
+
+    <h2>5.4 Comments</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/recipes/:recipeId/comments</code>
+    </div>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/recipes/:recipeId/comments</code>
+    </div>
+
+    <h2>5.5 Follow/Unfollow User</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/users/:userId/follow</code> (Follow)
+    </div>
+    <div class="endpoint">
+        <strong>DELETE</strong> <code>/users/:userId/follow</code> (Unfollow)
+    </div>
+
+    <hr>
+
+    <h1>6. Notifications</h1>
+
+    <h2>6.1 Get Notifications</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/notifications</code>
+    </div>
+
+    <p><strong>Success Response (200):</strong></p>
+    <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": "string",
+      "type": "liked | following | saved | commented",
+      "avatar": "string (URL)",
+      "name": "string (actor name)",
+      "action": "string (description)",
+      "target": "string (recipe title, etc.)",
+      "time": "string (e.g., '2h ago')",
+      "isRead": "boolean",
+      "createdAt": "ISO 8601 timestamp"
+    }
+  ],
+  "pagination": {},
+  "unreadCount": "number"
+}</code></pre>
+
+    <h2>6.2 Mark Notification as Read</h2>
+    <div class="endpoint">
+        <strong>PATCH</strong> <code>/notifications/:notificationId/read</code>
+    </div>
+
+    <h2>6.3 Mark All as Read</h2>
+    <div class="endpoint">
+        <strong>PATCH</strong> <code>/notifications/read-all</code>
+    </div>
+
+    <hr>
+
+    <h1>7. Search</h1>
+
+    <h2>7.1 Search Recipes</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/search/recipes</code>
+    </div>
+
+    <p><strong>Query Parameters:</strong></p>
+    <ul>
+        <li><code>q</code> (string, search query)</li>
+        <li><code>page</code>, <code>limit</code></li>
+        <li><code>category</code> (optional)</li>
+    </ul>
+
+    <h2>7.2 Search Users</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/search/users</code>
+    </div>
+
+    <hr>
+
+    <h1>8. Activity Feed</h1>
+
+    <h2>8.1 Get Recent Activity</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/users/me/activity</code>
+    </div>
+
+    <p><strong>Success Response (200):</strong></p>
+    <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": "string",
+      "title": "string",
+      "type": "like | post | comment | upload",
+      "timestamp": "ISO 8601 timestamp",
+      "imageUrl": "string (URL) | null"
+    }
+  ],
+  "pagination": {}
+}</code></pre>
+
+    <hr>
+
+    <h1>9. File Upload</h1>
+
+    <h2>9.1 Image Upload</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/upload/image</code>
+    </div>
+
+    <p><strong>Headers:</strong></p>
+    <ul>
+        <li><code>Authorization: Bearer &lt;token&gt;</code></li>
+        <li><code>Content-Type: multipart/form-data</code></li>
+    </ul>
+
+    <p><strong>Request Body:</strong> <code>image</code> (file)</p>
+
+    <h3>File Constraints</h3>
+    <ul>
+        <li><strong>Max file size:</strong> 10MB (confirm with backend)</li>
+        <li><strong>Allowed formats:</strong> JPEG, PNG, WebP</li>
+        <li><strong>Min dimensions:</strong> 800x600px (confirm)</li>
+        <li><strong>Max dimensions:</strong> 4000x4000px (confirm)</li>
+    </ul>
+
+    <p><strong>Success Response (200):</strong></p>
+    <pre><code>{
+  "success": true,
+  "data": {
+    "imageUrl": "string (full URL)",
+    "thumbnailUrl": "string (optional)",
+    "width": "number",
+    "height": "number"
+  }
+}</code></pre>
+
+    <h2>9.2 Video Upload (if applicable)</h2>
+    <div class="endpoint">
+        <strong>POST</strong> <code>/upload/video</code>
+    </div>
+
+    <h3>File Constraints</h3>
+    <ul>
+        <li><strong>Max file size:</strong> 50MB (confirm)</li>
+        <li><strong>Max duration:</strong> 60 seconds (confirm)</li>
+        <li><strong>Allowed formats:</strong> MP4, MOV</li>
+    </ul>
+
+    <h2>9.3 Alternative: Pre-Signed URL Upload</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/upload/presigned-url</code>
+    </div>
+
+    <p><strong>Query Parameters:</strong> <code>fileType</code>, <code>fileName</code></p>
+
+    <div class="endpoint">
+        <strong>POST</strong> <code>/upload/confirm</code>
+    </div>
+
+    <p><strong>Request Body:</strong> <code>fileKey</code></p>
+
+    <hr>
+
+    <h1>10. Settings & Preferences</h1>
+
+    <h2>10.1 Get User Settings</h2>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/users/me/settings</code>
+    </div>
+
+    <p><strong>Success Response (200):</strong></p>
+    <pre><code>{
+  "success": true,
+  "data": {
+    "notifications": {
+      "push": "boolean",
+      "email": "boolean",
+      "likes": "boolean",
+      "comments": "boolean",
+      "follows": "boolean"
+    },
+    "privacy": {
+      "profileVisibility": "public | private",
+      "showEmail": "boolean"
+    },
+    "language": "string (e.g., 'en')",
+    "theme": "light | dark | system"
+  }
+}</code></pre>
+
+    <h2>10.2 Update User Settings</h2>
+    <div class="endpoint">
+        <strong>PATCH</strong> <code>/users/me/settings</code>
+    </div>
+
+    <hr>
+
+    <h1>11. Error Response Structure</h1>
+
+    <h3>Standard Error Format</h3>
+    <pre><code>{
+  "success": false,
+  "error": {
+    "code": "string (e.g., 'AUTH_001', 'VALIDATION_ERROR')",
+    "message": "string (user-friendly message)",
+    "details": [
+      {
+        "field": "email",
+        "message": "Invalid email format",
+        "code": "INVALID_FORMAT"
+      }
+    ],
+    "timestamp": "ISO 8601 timestamp"
+  }
+}</code></pre>
+
+    <h3>HTTP Status Codes</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Meaning</th>
+                <th>Usage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>200</td>
+                <td>OK</td>
+                <td>Successful GET, PUT, PATCH</td>
+            </tr>
+            <tr>
+                <td>201</td>
+                <td>Created</td>
+                <td>Successful POST (resource created)</td>
+            </tr>
+            <tr>
+                <td>204</td>
+                <td>No Content</td>
+                <td>Successful DELETE</td>
+            </tr>
+            <tr>
+                <td>400</td>
+                <td>Bad Request</td>
+                <td>Validation errors, malformed request</td>
+            </tr>
+            <tr>
+                <td>401</td>
+                <td>Unauthorized</td>
+                <td>Missing/invalid/expired token</td>
+            </tr>
+            <tr>
+                <td>403</td>
+                <td>Forbidden</td>
+                <td>Insufficient permissions</td>
+            </tr>
+            <tr>
+                <td>404</td>
+                <td>Not Found</td>
+                <td>Resource doesn't exist</td>
+            </tr>
+            <tr>
+                <td>409</td>
+                <td>Conflict</td>
+                <td>Duplicate resource</td>
+            </tr>
+            <tr>
+                <td>422</td>
+                <td>Unprocessable Entity</td>
+                <td>Semantic errors</td>
+            </tr>
+            <tr>
+                <td>429</td>
+                <td>Too Many Requests</td>
+                <td>Rate limit exceeded</td>
+            </tr>
+            <tr>
+                <td>500</td>
+                <td>Internal Server Error</td>
+                <td>Server error</td>
+            </tr>
+            <tr>
+                <td>503</td>
+                <td>Service Unavailable</td>
+                <td>Server maintenance</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="note">
+        <strong>Note:</strong> Request a complete error code taxonomy from the backend team with all possible error codes and their descriptions.
+    </div>
+
+    <hr>
+
+    <h1>12. Data Format Conventions</h1>
+
+    <h3>Date/Time Format</h3>
+    <ul>
+        <li><strong>Standard:</strong> ISO 8601 format (<code>2026-01-21T14:35:40Z</code>)</li>
+        <li><strong>Timezone:</strong> UTC timestamps</li>
+        <li><strong>Relative time:</strong> Confirm if backend provides relative strings (e.g., "2h ago") or frontend calculates</li>
+    </ul>
+
+    <h3>Data Type Standards</h3>
+    <ul>
+        <li><strong>Boolean:</strong> <code>true</code>/<code>false</code> (not 1/0)</li>
+        <li><strong>Null handling:</strong> Use <code>null</code> for missing optional fields</li>
+        <li><strong>Empty arrays:</strong> Return <code>[]</code>, not <code>null</code></li>
+        <li><strong>Enum values:</strong> String format (e.g., <code>"liked"</code>, <code>"following"</code>)</li>
+    </ul>
+
+    <hr>
+
+    <h1>13. Pagination Standards</h1>
+
+    <h3>Request Parameters</h3>
+    <ul>
+        <li><code>page</code> (number, 1-indexed, default: 1)</li>
+        <li><code>limit</code> or <code>per_page</code> (number, default: 20, max: 50)</li>
+    </ul>
+
+    <h3>Response Metadata</h3>
+    <pre><code>{
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 10,
+    "totalItems": 200,
+    "perPage": 20,
+    "hasNext": true,
+    "hasPrevious": false
+  }
+}</code></pre>
+
+    <hr>
+
+    <h1>14. Required Deliverables Checklist</h1>
+
+    <div class="checklist">
+        <h3>Documentation</h3>
+        <ul>
+            <li>Complete OpenAPI/Swagger specification (JSON/YAML)</li>
+            <li>Postman collection with all endpoints and example requests</li>
+            <li>Error codes reference table with descriptions</li>
+            <li>Authentication flow diagram</li>
+            <li>API changelog/version history</li>
+        </ul>
+
+        <h3>Configuration</h3>
+        <ul>
+            <li>Environment URLs (dev, staging, production)</li>
+            <li>API keys (if required)</li>
+            <li>Rate limiting policies per endpoint</li>
+            <li>CORS configuration details</li>
+        </ul>
+
+        <h3>Testing Resources</h3>
+        <ul>
+            <li>Test/sandbox account credentials</li>
+            <li>Mock data availability</li>
+            <li>Sample payloads for all scenarios (success & error)</li>
+        </ul>
+
+        <h3>Specifications</h3>
+        <ul>
+            <li>File upload constraints (size, formats, dimensions)</li>
+            <li>Token expiration times (access & refresh)</li>
+            <li>Pagination limits and defaults</li>
+            <li>Date/time format conventions</li>
+            <li>Null handling conventions</li>
+        </ul>
+
+        <h3>Support</h3>
+        <ul>
+            <li>API status page URL</li>
+            <li>Health check endpoint</li>
+            <li>Support contact for API issues</li>
+            <li>SLA commitments (uptime, response time)</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <h1>15. Additional Questions for Backend Team</h1>
+
+    <ol>
+        <li><strong>Authentication:</strong>
+            <ul>
+                <li>What is the exact token refresh flow?</li>
+                <li>How should the app handle token expiration during active use?</li>
+                <li>Are there any IP-based restrictions or device limits?</li>
+            </ul>
+        </li>
+        <li><strong>File Uploads:</strong>
+            <ul>
+                <li>Should we use direct upload or pre-signed URLs?</li>
+                <li>Are there automatic image optimizations (compression, resizing)?</li>
+                <li>What CDN is used for serving uploaded files?</li>
+            </ul>
+        </li>
+        <li><strong>Real-time Features:</strong>
+            <ul>
+                <li>Are WebSockets available for real-time notifications?</li>
+                <li>If yes, what is the WebSocket endpoint and message format?</li>
+            </ul>
+        </li>
+        <li><strong>Performance:</strong>
+            <ul>
+                <li>What are the recommended caching strategies?</li>
+                <li>Are there any ETags or Last-Modified headers for caching?</li>
+            </ul>
+        </li>
+        <li><strong>Security:</strong>
+            <ul>
+                <li>Is SSL certificate pinning required for production?</li>
+                <li>Are there any additional security headers required?</li>
+            </ul>
+        </li>
+        <li><strong>Monitoring:</strong>
+            <ul>
+                <li>Should the app send analytics or error tracking data?</li>
+                <li>What logging/debugging headers should be included in requests?</li>
+            </ul>
+        </li>
+    </ol>
+
+    <hr>
+
+    <div class="note">
+        <p><strong>Document End</strong></p>
+        <p><em>This document should be reviewed and confirmed by the backend development team before integration begins.</em></p>
+    </div>
+
+</body>
+</html>
