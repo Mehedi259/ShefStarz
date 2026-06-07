@@ -28,6 +28,7 @@ class ApiConfig {
   static String getNotificationDetails(String id) => "notifications/$id/";
 
   static const String profileMe = "users/profiles/me/";
+  static const String updateProfile = "users/profiles/me/";
   static const String appSettings = "app_settings/app-settings";
   static const String changePassword = "users/auth/password/change/";
   static const String requestPasswordReset = "users/auth/password/reset/";

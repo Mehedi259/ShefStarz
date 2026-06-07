@@ -6,8 +6,13 @@ import '../controller/social_auth_controller.dart';
 class LoginBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => LoginController(), fenix: true);
-    Get.lazyPut(() => AuthController(), fenix: true);
-    Get.lazyPut(() => SocialAuthController(), fenix: true);
+    Get.lazyPut(() => LoginController());
+    // Check if AuthController already exists, don't create duplicate
+    if (!Get.isRegistered<AuthController>()) {
+      Get.lazyPut(() => AuthController());
+    }
+    if (!Get.isRegistered<SocialAuthController>()) {
+      Get.lazyPut(() => SocialAuthController());
+    }
   }
 }

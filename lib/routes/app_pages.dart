@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import '../modules/auth/view/parent_verification_view.dart';
 import '../modules/auth/view/parent_view.dart';
 import '../modules/auth/view/singup_verification_view.dart';
+import '../modules/auth/view/profile_completion_view.dart';
+import '../modules/auth/binding/profile_completion_binding.dart';
 import '../modules/home/binding/home_binding.dart';
 import '../modules/home/view/home_view.dart';
 import '../modules/splash/binding/splash_binding.dart';
@@ -158,6 +160,11 @@ class AppPages {
       name: Routes.SIGNUP_DETAILS,
       page: () => const SignupDetailsView(),
       binding: AuthBinding(),
+    ),
+    GetPage(
+      name: Routes.PROFILE_COMPLETION,
+      page: () => const ProfileCompletionView(),
+      binding: ProfileCompletionBinding(),
     ),
     GetPage(
       name: Routes.Parent_View,

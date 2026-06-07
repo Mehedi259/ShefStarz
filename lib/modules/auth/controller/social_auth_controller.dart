@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' as g_auth;
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart' as g_auth;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,19 +30,26 @@ class SocialAuthController extends GetxController {
       // 1. Native Google Sign-In
       final g_auth.GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
+        // User cancelled
         isLoading.value = false;
-        return; // User cancelled
+        return;
       }
 
       final g_auth.GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      // 2. Send tokens to backend
+      // Check if tokens exist
+      if (googleAuth.accessToken == null || googleAuth.idToken == null) {
+        throw Exception("Failed to get authentication tokens from Google");
+      }
+
+      // 2. Send tokens to backend with email
       final response = await _apiClient.postRequest(
         ApiConfig.googleLogin,
         {
           "access_token": googleAuth.accessToken,
           "id_token": googleAuth.idToken,
+          "email": googleUser.email, // Added email field
         },
         requiresAuth: false,
       );
@@ -51,9 +59,20 @@ class SocialAuthController extends GetxController {
       } else {
         _handleAuthError(response);
       }
+    } on g_auth.PlatformException catch (e) {
+      Get.snackbar(
+        "Google Login Error",
+        "Failed to sign in with Google. Please try again.",
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
     } catch (e) {
-      Get.snackbar("Google Login Error", e.toString(),
-          backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar(
+        "Google Login Error",
+        "An unexpected error occurred. Please try again.",
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -64,6 +83,17 @@ class SocialAuthController extends GetxController {
     try {
       isLoading.value = true;
 
+      // Check if Sign in with Apple is available
+      if (!await SignInWithApple.isAvailable()) {
+        Get.snackbar(
+          "Not Available",
+          "Sign in with Apple is not available on this device",
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
       // 1. Native Apple Sign-In
       final AuthorizationCredentialAppleID credential =
           await SignInWithApple.getAppleIDCredential(
@@ -73,11 +103,16 @@ class SocialAuthController extends GetxController {
         ],
       );
 
+      // Check if identity token exists
+      if (credential.identityToken == null) {
+        throw Exception("Failed to get identity token from Apple");
+      }
+
       // 2. Send identity token to backend
       final response = await _apiClient.postRequest(
         ApiConfig.appleLogin,
         {
-          "access_token": credential.identityToken,
+          "id_token": credential.identityToken,  // Changed from access_token to id_token
         },
         requiresAuth: false,
       );
@@ -87,9 +122,23 @@ class SocialAuthController extends GetxController {
       } else {
         _handleAuthError(response);
       }
+    } on SignInWithAppleAuthorizationException catch (e) {
+      // User cancelled or error occurred
+      if (e.code != AuthorizationErrorCode.canceled) {
+        Get.snackbar(
+          "Apple Login Error",
+          "Failed to sign in with Apple. Please try again.",
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+      }
     } catch (e) {
-      Get.snackbar("Apple Login Error", e.toString(),
-          backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar(
+        "Apple Login Error",
+        "An unexpected error occurred: ${e.toString()}",
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -108,7 +157,8 @@ class SocialAuthController extends GetxController {
 
       // 4. Parse user and sync with AuthService
       if (user != null) {
-        final String? username = user['username'];
+        // Backend returns 'full_name' not 'username'
+        final String? username = user['username'] ?? user['full_name'];
         final String? ageGroup = user['age_group'];
 
         final userModel = UserModel(
@@ -130,15 +180,9 @@ class SocialAuthController extends GetxController {
           // AuthService not initialized yet, will be handled on next restart
         }
 
-        // Redirection based on profile completion
-        if (username == null ||
-            username.isEmpty ||
-            ageGroup == null ||
-            ageGroup.isEmpty) {
-          Get.toNamed(Routes.SIGNUP_DETAILS);
-        } else {
-          Get.offAllNamed(Routes.DASHBOARD);
-        }
+        // Redirection: Always go to dashboard for social login users
+        // Profile can be completed later from settings/edit profile
+        Get.offAllNamed(Routes.DASHBOARD);
       } else {
         Get.offAllNamed(Routes.DASHBOARD);
       }

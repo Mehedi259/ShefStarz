@@ -14,6 +14,7 @@ abstract class Routes {
   static const Parent_View = _Paths.Parent_View;
   static const DASHBOARD = _Paths.DASHBOARD;
   static const SIGNUP_DETAILS = _Paths.SIGNUP_DETAILS;
+  static const PROFILE_COMPLETION = _Paths.PROFILE_COMPLETION;
   static const FORGOT_PASSWORD = _Paths.FORGOT_PASSWORD;
   static const VERIFICATION = _Paths.VERIFICATION;
   static final parentVerification = _Paths.PARENT_VERIFICATION;
@@ -55,6 +56,7 @@ abstract class _Paths {
   static const SIGN_UP = '/sign-up';
   static const Parent_View = '/parent-view';
   static const SIGNUP_DETAILS = '/signup-details';
+  static const PROFILE_COMPLETION = '/profile-completion';
   static const FORGOT_PASSWORD = '/forgot-password';
   static const VERIFICATION = '/verification';
   static const PARENT_VERIFICATION = '/parent-verification';
