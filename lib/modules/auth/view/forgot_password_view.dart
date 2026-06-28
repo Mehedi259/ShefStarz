@@ -46,7 +46,7 @@ class ForgotPasswordView extends GetView<AuthController> {
                         validator: controller.validateForgotPasswordEmail,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         decoration: InputDecoration(
-                          hintText: "dankaplen123@gmail.com",
+                          hintText: "",
                           labelText: "Email",
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           border: OutlineInputBorder(

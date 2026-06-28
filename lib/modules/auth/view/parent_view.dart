@@ -41,7 +41,7 @@ class ParentView extends GetView<AuthController> {
                     // Name Input
                     CustomInputAuth(
                       label: "Our Chef Star Name",
-                      hint: "Dankaplen",
+                      hint: "",
                       controller: controller.nameController,
                       onChanged: controller.validateName,
                       validator: controller.validateName,
@@ -117,7 +117,7 @@ class ParentView extends GetView<AuthController> {
                                 AutovalidateMode.onUserInteraction,
                             decoration: InputDecoration(
                               labelText: "Parent's Email Address",
-                              hintText: "example@gmail.com",
+                              hintText: "",
                               floatingLabelBehavior:
                                   FloatingLabelBehavior.always,
                               border: OutlineInputBorder(
