@@ -39,20 +39,32 @@ class UploadPostView extends GetView<UploadController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildField(
+            Obx(() => _buildField(
               context,
               label: "Write Post/Video Title",
               controller: controller.postTitle,
               hint: "eg. rainbow cake",
-            ),
+              hasError: controller.postTitleError.value,
+              onChanged: (_) {
+                if (controller.postTitleError.value) {
+                  controller.postTitleError.value = false;
+                }
+              },
+            )),
             const SizedBox(height: 24),
-            _buildField(
+            Obx(() => _buildField(
               context,
               label: "Description",
               controller: controller.postDescription,
               hint: "A rainbow cake is a vibrant...",
               maxLines: 4,
-            ),
+              hasError: controller.postDescriptionError.value,
+              onChanged: (_) {
+                if (controller.postDescriptionError.value) {
+                  controller.postDescriptionError.value = false;
+                }
+              },
+            )),
             const SizedBox(height: 48),
             SizedBox(
               width: double.infinity,
@@ -78,6 +90,8 @@ class UploadPostView extends GetView<UploadController> {
     required TextEditingController controller,
     String? hint,
     int maxLines = 1,
+    bool hasError = false,
+    Function(String)? onChanged,
   }) {
     final theme = Theme.of(context);
     return Column(
@@ -93,6 +107,7 @@ class UploadPostView extends GetView<UploadController> {
         TextField(
           controller: controller,
           maxLines: maxLines,
+          onChanged: onChanged,
           style: theme.textTheme.bodyLarge,
           decoration: InputDecoration(
             hintText: hint,
@@ -101,18 +116,38 @@ class UploadPostView extends GetView<UploadController> {
             fillColor: theme.cardColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: theme.dividerColor),
+              borderSide: BorderSide(
+                color: hasError ? Colors.red : theme.dividerColor,
+                width: hasError ? 2 : 1,
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: theme.dividerColor),
+              borderSide: BorderSide(
+                color: hasError ? Colors.red : theme.dividerColor,
+                width: hasError ? 2 : 1,
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.orange),
+              borderSide: BorderSide(
+                color: hasError ? Colors.red : Colors.orange,
+                width: 2,
+              ),
             ),
           ),
         ),
+        if (hasError)
+          Padding(
+            padding: const EdgeInsets.only(top: 8, left: 4),
+            child: Text(
+              "This field is required",
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.red,
+                fontSize: 12,
+              ),
+            ),
+          ),
       ],
     );
   }

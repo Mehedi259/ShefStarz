@@ -224,6 +224,10 @@ class UploadController extends GetxController {
   // Post Data
   final postTitle = TextEditingController();
   final postDescription = TextEditingController();
+  
+  // Validation flags
+  final postTitleError = false.obs;
+  final postDescriptionError = false.obs;
 
   // Recipe Data
   final recipePageController = PageController();
@@ -367,6 +371,29 @@ class UploadController extends GetxController {
   }
 
   Future<void> publishPost() async {
+    // Reset validation errors
+    postTitleError.value = false;
+    postDescriptionError.value = false;
+    
+    // Validate fields
+    bool hasError = false;
+    
+    if (postTitle.text.trim().isEmpty) {
+      postTitleError.value = true;
+      hasError = true;
+    }
+    
+    if (postDescription.text.trim().isEmpty) {
+      postDescriptionError.value = true;
+      hasError = true;
+    }
+    
+    // If validation fails, don't show parental dialog
+    if (hasError) {
+      return;
+    }
+    
+    // Show parental verification dialog only if validation passes
     final bool isVerified = await ParentalVerificationDialog.present();
     if (!isVerified) {
       Get.snackbar(
@@ -374,11 +401,6 @@ class UploadController extends GetxController {
         'Submission cancelled. Parent approval required.',
         snackPosition: SnackPosition.BOTTOM,
       );
-      return;
-    }
-
-    if (postTitle.text.isEmpty) {
-      Get.snackbar("Error", "Please enter a title");
       return;
     }
 
@@ -458,7 +480,7 @@ class UploadController extends GetxController {
           final homeService = Get.find<HomeService>();
           homeService.feedPosts.insert(0, finalPost);
         } catch (_) {
-          // HomeService might not be initialized if they jumped straight here, ignore safely
+          // HomeService might not be initialized yet, ignore safely
         }
       }
 
